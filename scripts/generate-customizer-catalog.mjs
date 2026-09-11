@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, writeFileSync } from 'node:fs';
-import { dirname, join, relative, sep } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 
 const root = process.cwd();
 const assetRoot = join(root, 'src', 'assets');

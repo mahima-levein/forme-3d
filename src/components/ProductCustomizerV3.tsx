@@ -3,6 +3,17 @@ import catalog from "../data/customizer/catalog.generated.json";
 import metadataFile from "../data/customizer/product-overrides.json";
 import { assetUrl, sampleLogoUrls } from "../lib/customizer/assets";
 import FabricProductCanvas from "./customizer/FabricProductCanvas";
+import {
+  ArrowLeft,
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  Palette,
+  Pencil,
+  Shirt,
+  X,
+} from "lucide-react";
 
 type View = "front" | "back" | "left" | "right";
 type Panel = "home" | "placement" | "items" | "notes" | "products";
@@ -400,14 +411,14 @@ export default function ProductCustomizerV3() {
       <button
         type="button"
         onClick={open}
-        className="inline-flex items-center gap-3.5 text-[11px] text-[#c97834]"
+        className="inline-flex cursor-pointer items-center gap-3.5 text-[11px] border border-[#c97834] text-[#c97834] px-[18px] py-[13px] text-md no-underline transition-colors duration-200 hover:bg-white hover:text-[#1c211f]"
       >
-        Discover our materials <span className="text-lg">→</span>
+        Discover our materials <ArrowRight size={15} strokeWidth={1.8} aria-hidden="true" />
       </button>
       <dialog
         ref={dialog}
         onClose={() => setIsOpen(false)}
-        className="relative m-auto h-[min(800px,calc(100dvh-48px))] w-[min(1320px,calc(100vw-32px))] max-h-none max-w-none overflow-hidden border border-[#343434] bg-[#f7f7f7] p-0 text-[#202020] backdrop:bg-[#1d2422]/70 max-[800px]:m-0 max-[800px]:h-dvh max-[800px]:w-screen"
+        className="relative m-auto h-[min(800px,calc(100dvh-48px))] w-[min(1320px,calc(100vw-32px))] max-h-none max-w-none overflow-hidden border border-[#343434] rounded-2xl bg-[#f7f7f7] p-0 text-[#202020] backdrop:bg-[#1d2422]/70 max-[800px]:m-0 max-[800px]:h-dvh max-[800px]:w-screen"
         aria-label="Product customizer"
       >
         <div className="grid h-full min-h-0 grid-cols-[minmax(0,1fr)_380px] max-[800px]:grid-cols-1 max-[800px]:grid-rows-[46dvh_minmax(0,1fr)]">
@@ -445,10 +456,10 @@ export default function ProductCustomizerV3() {
                       ] as View,
                     )
                   }
-                  className="absolute left-5 top-1/2 -translate-y-1/2 text-5xl font-light text-black/25"
+                  className="absolute left-5 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/70 text-black/45 shadow-sm transition hover:bg-white"
                   aria-label="Previous view"
                 >
-                  ‹
+                  <ChevronLeft size={28} strokeWidth={1.5} aria-hidden="true" />
                 </button>
                 <button
                   onClick={() =>
@@ -456,10 +467,10 @@ export default function ProductCustomizerV3() {
                       available[(activeIndex + 1) % available.length] as View,
                     )
                   }
-                  className="absolute right-5 top-1/2 -translate-y-1/2 text-5xl font-light text-black/25"
+                  className="absolute right-5 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/70 text-black/45 shadow-sm transition hover:bg-white"
                   aria-label="Next view"
                 >
-                  ›
+                  <ChevronRight size={28} strokeWidth={1.5} aria-hidden="true" />
                 </button>
                 <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-3">
                   {available.map((v) => (
@@ -476,10 +487,15 @@ export default function ProductCustomizerV3() {
             <button
               disabled={busy}
               onClick={() => void downloadCurrentView()}
-              className="absolute bottom-3 left-4 border border-black/20 bg-white px-3 py-2 text-xs disabled:opacity-40"
+              className="absolute bottom-3 left-4 grid h-10 w-10 place-items-center rounded-full border border-black/15 bg-white/90 text-[#202020] shadow-sm transition hover:bg-white disabled:opacity-40"
+              aria-label="Download current view"
+              title="Download current view"
             >
-              Download Current View
+              <Download size={17} strokeWidth={1.8} aria-hidden="true" />
             </button>
+            <span className="absolute bottom-4 right-0 -translate-x-1/2 text-[10px] font-medium uppercase tracking-[0.18em] text-black/45">
+              Powered By LeveinGroup
+            </span>
             {busy && (
               <span className="absolute left-4 top-4 rounded bg-white px-3 py-2 text-sm shadow">
                 Updating preview…
@@ -487,54 +503,58 @@ export default function ProductCustomizerV3() {
             )}
           </section>
           <aside className="flex min-h-0 flex-col border-l border-black/10 bg-white max-[800px]:row-start-2 max-[800px]:border-l-0 max-[800px]:border-t">
-            <header className="flex items-start justify-between border-b-4 border-white bg-[#e5e5e5] px-6 py-5">
+            <header className="flex items-start justify-between border-b border-black/10 bg-[#e9e9e9] px-6 py-5">
               <div>
-                <h2 className="font-display text-[27px] font-semibold leading-[1.05]">
+                <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#c97834]">
+                  Product customizer
+                </p>
+                <h2 className="max-w-[285px] font-display text-[25px] font-semibold leading-[1.08] tracking-[-0.03em] text-[#111827]">
                   {meta.title ?? product.name}
                 </h2>
                 <button
                   onClick={() => setPanel("products")}
-                  className="mt-2 text-sm text-[#777] underline"
+                  className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-[#626262] underline decoration-black/25 underline-offset-4 transition hover:text-[#c97834]"
                 >
-                  Change product
+                  Change product <ArrowRight size={13} strokeWidth={1.8} aria-hidden="true" />
                 </button>
               </div>
               <button
                 onClick={close}
-                className="p-1 text-sm font-semibold"
+                className="grid h-9 w-9 place-items-center rounded-full border border-black/10 bg-white/70 text-[#444] transition hover:bg-white hover:text-black"
                 aria-label="Close customizer"
+                title="Close customizer"
               >
-                Close ×
+                <X size={17} strokeWidth={1.8} aria-hidden="true" />
               </button>
             </header>
             {panel === "home" ? (
               <div className="min-h-0 overflow-y-auto">
                 <button
                   onClick={() => setPanel("placement")}
-                  className="flex w-full items-center gap-4 border-b-4 border-white bg-[#f4f4f4] px-6 py-5 text-left"
+                  className="flex w-full items-center gap-4 border-b border-black/5 bg-[#f4f4f4] px-6 py-5 text-left transition hover:bg-[#ededed]"
                 >
-                  <span className="text-3xl">👕</span>
+                  <span className="grid h-10 w-10 place-items-center rounded-full bg-[#dce9e5] text-[#315e55]"><Shirt size={21} strokeWidth={1.7} aria-hidden="true" /></span>
                   <span className="text-base uppercase tracking-wide">
                     Logo Placement
                   </span>
                 </button>
                 <button
                   onClick={() => setPanel("items")}
-                  className="flex w-full items-center gap-4 border-b-4 border-white bg-[#f4f4f4] px-6 py-5 text-left"
+                  className="flex w-full items-center gap-4 border-b border-black/5 bg-[#f4f4f4] px-6 py-5 text-left transition hover:bg-[#ededed]"
                 >
-                  <span className="text-3xl">🎨</span>
+                  <span className="grid h-10 w-10 place-items-center rounded-full bg-[#f3e4d7] text-[#a65b27]"><Palette size={21} strokeWidth={1.7} aria-hidden="true" /></span>
                   <span className="text-base uppercase tracking-wide">
                     Colours and Sizes
                   </span>
-                  <span className="ml-auto rounded border border-black/15 bg-white px-2 py-1 text-xs">
+                  <span className="ml-auto rounded-full border border-black/15 bg-white px-3 py-1 text-[11px]">
                     List view
                   </span>
                 </button>
                 <button
                   onClick={() => setPanel("notes")}
-                  className="flex w-full items-center gap-4 border-b-4 border-white bg-[#f4f4f4] px-6 py-5 text-left"
+                  className="flex w-full items-center gap-4 border-b border-black/5 bg-[#f4f4f4] px-6 py-5 text-left transition hover:bg-[#ededed]"
                 >
-                  <span className="text-3xl">✏️</span>
+                  <span className="grid h-10 w-10 place-items-center rounded-full bg-[#e7e2ee] text-[#614b79]"><Pencil size={21} strokeWidth={1.7} aria-hidden="true" /></span>
                   <span className="text-base uppercase tracking-wide">
                     Specific Instructions
                   </span>
@@ -542,9 +562,9 @@ export default function ProductCustomizerV3() {
               </div>
             ) : (
               <>
-                <div className="flex items-center gap-3 border-b-4 border-white bg-[#ededed] px-5 py-4">
-                  <button onClick={() => setPanel("home")} aria-label="Back">
-                    ←
+                <div className="flex items-center gap-3 border-b border-black/10 bg-[#ededed] px-5 py-4">
+                  <button onClick={() => setPanel("home")} aria-label="Back" className="grid h-8 w-8 place-items-center rounded-full border border-black/10 bg-white/70 transition hover:bg-white">
+                    <ArrowLeft size={16} strokeWidth={1.8} aria-hidden="true" />
                   </button>
                   <h3 className="text-base uppercase tracking-wide">
                     {panelTitle}
@@ -945,8 +965,9 @@ export default function ProductCustomizerV3() {
                       type="button"
                       onClick={() => setQuoteOpen(false)}
                       aria-label="Close customer details"
+                      className="grid h-8 w-8 place-items-center rounded-full border border-black/10 text-[#555] hover:bg-black/5"
                     >
-                      Close ×
+                      <X size={16} strokeWidth={1.8} aria-hidden="true" />
                     </button>
                   </div>
                   <p className="mt-2 text-sm text-[#666]">

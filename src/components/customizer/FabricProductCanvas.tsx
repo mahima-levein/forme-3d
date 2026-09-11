@@ -1,9 +1,16 @@
-import { useEffect, useRef } from 'react';
-import { Canvas, FabricImage, Rect, type FabricObject } from 'fabric';
+import { useEffect, useRef } from "react";
+import { Canvas, FabricImage, Rect, type FabricObject } from "fabric";
 
 type RectSpec = { x: number; y: number; width: number; height: number };
 type AreaSpec = { printRect: RectSpec; safeRect: RectSpec };
-export type CanvasPlacement = { src: string; source: string; cx: number; cy: number; size: number; angle: number };
+export type CanvasPlacement = {
+  src: string;
+  source: string;
+  cx: number;
+  cy: number;
+  size: number;
+  angle: number;
+};
 
 type Props = {
   active: boolean;
@@ -15,11 +22,25 @@ type Props = {
   onError: (message: string) => void;
 };
 
-type Transform = { left: number; top: number; scaleX: number; scaleY: number; angle: number };
+type Transform = {
+  left: number;
+  top: number;
+  scaleX: number;
+  scaleY: number;
+  angle: number;
+};
 
-const inside = (object: FabricObject, safe: { left: number; top: number; right: number; bottom: number }) => {
+const inside = (
+  object: FabricObject,
+  safe: { left: number; top: number; right: number; bottom: number },
+) => {
   const box = object.getBoundingRect();
-  return box.left >= safe.left - 0.5 && box.top >= safe.top - 0.5 && box.left + box.width <= safe.right + 0.5 && box.top + box.height <= safe.bottom + 0.5;
+  return (
+    box.left >= safe.left - 0.5 &&
+    box.top >= safe.top - 0.5 &&
+    box.left + box.width <= safe.right + 0.5 &&
+    box.top + box.height <= safe.bottom + 0.5
+  );
 };
 
 const snapshot = (object: FabricObject): Transform => ({
@@ -30,10 +51,18 @@ const snapshot = (object: FabricObject): Transform => ({
   angle: object.angle,
 });
 
-export default function FabricProductCanvas({ active, source, area, placement, editing, onPlacementChange, onError }: Props) {
+export default function FabricProductCanvas({
+  active,
+  source,
+  area,
+  placement,
+  editing,
+  onPlacementChange,
+  onError,
+}: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const elementRef = useRef<HTMLCanvasElement>(null);
-  const canvasRef = useRef<Canvas>();
+  const canvasRef = useRef<Canvas | undefined>(undefined);
   const changeRef = useRef(onPlacementChange);
   const errorRef = useRef(onError);
   changeRef.current = onPlacementChange;
@@ -54,7 +83,8 @@ export default function FabricProductCanvas({ active, source, area, placement, e
   }, []);
 
   useEffect(() => {
-    if (!active || !source || !area || !hostRef.current || !canvasRef.current) return;
+    if (!active || !source || !area || !hostRef.current || !canvasRef.current)
+      return;
     const canvas = canvasRef.current;
     let cancelled = false;
     let generation = 0;
@@ -74,8 +104,8 @@ export default function FabricProductCanvas({ active, source, area, placement, e
         base.set({
           left: 0,
           top: 0,
-          originX: 'left',
-          originY: 'top',
+          originX: "left",
+          originY: "top",
           scaleX: width / (base.width || 1),
           scaleY: height / (base.height || 1),
           selectable: false,
@@ -94,35 +124,39 @@ export default function FabricProductCanvas({ active, source, area, placement, e
         };
 
         if (editing) {
-          canvas.add(new Rect({
-            left: print.x * width,
-            top: print.y * height,
-            originX: 'left',
-            originY: 'top',
-            width: print.width * width,
-            height: print.height * height,
-            fill: 'transparent',
-            stroke: '#222',
-            strokeWidth: 1,
-            selectable: false,
-            evented: false,
-            excludeFromExport: true,
-          }));
-          canvas.add(new Rect({
-            left: safe.left,
-            top: safe.top,
-            originX: 'left',
-            originY: 'top',
-            width: safeRect.width * width,
-            height: safeRect.height * height,
-            fill: 'transparent',
-            stroke: '#222',
-            strokeWidth: 1.5,
-            strokeDashArray: [10, 7],
-            selectable: false,
-            evented: false,
-            excludeFromExport: true,
-          }));
+          canvas.add(
+            new Rect({
+              left: print.x * width,
+              top: print.y * height,
+              originX: "left",
+              originY: "top",
+              width: print.width * width,
+              height: print.height * height,
+              fill: "transparent",
+              stroke: "#222",
+              strokeWidth: 1,
+              selectable: false,
+              evented: false,
+              excludeFromExport: true,
+            }),
+          );
+          canvas.add(
+            new Rect({
+              left: safe.left,
+              top: safe.top,
+              originX: "left",
+              originY: "top",
+              width: safeRect.width * width,
+              height: safeRect.height * height,
+              fill: "transparent",
+              stroke: "#222",
+              strokeWidth: 1.5,
+              strokeDashArray: [10, 7],
+              selectable: false,
+              evented: false,
+              excludeFromExport: true,
+            }),
+          );
         }
 
         if (placement) {
@@ -133,8 +167,8 @@ export default function FabricProductCanvas({ active, source, area, placement, e
           logo.set({
             left: safe.left + placement.cx * safeRect.width * width,
             top: safe.top + placement.cy * safeRect.height * height,
-            originX: 'center',
-            originY: 'center',
+            originX: "center",
+            originY: "center",
             scaleX: uniformScale,
             scaleY: uniformScale,
             angle: placement.angle,
@@ -146,21 +180,35 @@ export default function FabricProductCanvas({ active, source, area, placement, e
             centeredRotation: true,
             centeredScaling: true,
             transparentCorners: false,
-            cornerColor: '#7547ed',
-            cornerStrokeColor: '#ffffff',
-            borderColor: '#7547ed',
-            cornerStyle: 'circle',
+            cornerColor: "#7547ed",
+            cornerStrokeColor: "#ffffff",
+            borderColor: "#7547ed",
+            cornerStyle: "circle",
             cornerSize: 13,
             padding: 1,
-            hoverCursor: 'move',
-            moveCursor: 'move',
+            hoverCursor: "move",
+            moveCursor: "move",
           });
-          logo.setControlsVisibility({ mt: false, mb: false, ml: false, mr: false });
+          logo.setControlsVisibility({
+            mt: false,
+            mb: false,
+            ml: false,
+            mr: false,
+          });
           logo.setCoords();
           const initialBox = logo.getBoundingRect();
-          const fitRatio = Math.min(1, Math.min((safe.right - safe.left) / initialBox.width, (safe.bottom - safe.top) / initialBox.height) * 0.98);
+          const fitRatio = Math.min(
+            1,
+            Math.min(
+              (safe.right - safe.left) / initialBox.width,
+              (safe.bottom - safe.top) / initialBox.height,
+            ) * 0.98,
+          );
           if (fitRatio < 1) {
-            logo.set({ scaleX: logo.scaleX * fitRatio, scaleY: logo.scaleY * fitRatio });
+            logo.set({
+              scaleX: logo.scaleX * fitRatio,
+              scaleY: logo.scaleY * fitRatio,
+            });
           }
           logo.setCoords();
           let lastValid = snapshot(logo);
@@ -180,9 +228,11 @@ export default function FabricProductCanvas({ active, source, area, placement, e
             let dx = 0;
             let dy = 0;
             if (box.left < safe.left) dx = safe.left - box.left;
-            if (box.left + box.width > safe.right) dx = safe.right - box.left - box.width;
+            if (box.left + box.width > safe.right)
+              dx = safe.right - box.left - box.width;
             if (box.top < safe.top) dy = safe.top - box.top;
-            if (box.top + box.height > safe.bottom) dy = safe.bottom - box.top - box.height;
+            if (box.top + box.height > safe.bottom)
+              dy = safe.bottom - box.top - box.height;
             logo.set({ left: logo.left + dx, top: logo.top + dy });
             logo.setCoords();
             if (inside(logo, safe)) lastValid = snapshot(logo);
@@ -196,7 +246,12 @@ export default function FabricProductCanvas({ active, source, area, placement, e
             size: logo.getScaledWidth() / (safeRect.width * width),
             angle: logo.angle,
           };
-          if (Math.abs(fittedPlacement.cx - placement.cx) > 0.0001 || Math.abs(fittedPlacement.cy - placement.cy) > 0.0001 || Math.abs(fittedPlacement.size - placement.size) > 0.0001) changeRef.current(fittedPlacement);
+          if (
+            Math.abs(fittedPlacement.cx - placement.cx) > 0.0001 ||
+            Math.abs(fittedPlacement.cy - placement.cy) > 0.0001 ||
+            Math.abs(fittedPlacement.size - placement.size) > 0.0001
+          )
+            changeRef.current(fittedPlacement);
           const commit = () => {
             logo.setCoords();
             if (!inside(logo, safe)) restore();
@@ -212,16 +267,23 @@ export default function FabricProductCanvas({ active, source, area, placement, e
           canvas.add(logo);
           if (editing) {
             canvas.setActiveObject(logo);
-            canvas.on('object:moving', clampMove);
-            canvas.on('object:scaling', () => inside(logo, safe) ? remember() : restore());
-            canvas.on('object:rotating', () => inside(logo, safe) ? remember() : restore());
-            canvas.on('object:modified', commit);
+            canvas.on("object:moving", clampMove);
+            canvas.on("object:scaling", () =>
+              inside(logo, safe) ? remember() : restore(),
+            );
+            canvas.on("object:rotating", () =>
+              inside(logo, safe) ? remember() : restore(),
+            );
+            canvas.on("object:modified", commit);
           }
         }
         canvas.calcOffset();
         canvas.requestRenderAll();
       } catch {
-        if (!cancelled) errorRef.current('The product preview could not be loaded. Please retry.');
+        if (!cancelled)
+          errorRef.current(
+            "The product preview could not be loaded. Please retry.",
+          );
       }
     };
 
@@ -234,7 +296,28 @@ export default function FabricProductCanvas({ active, source, area, placement, e
       observer.disconnect();
       canvas.off();
     };
-  }, [active, source, area, editing, placement?.src, placement?.source, placement?.cx, placement?.cy, placement?.size, placement?.angle]);
+  }, [
+    active,
+    source,
+    area,
+    editing,
+    placement?.src,
+    placement?.source,
+    placement?.cx,
+    placement?.cy,
+    placement?.size,
+    placement?.angle,
+  ]);
 
-  return <div ref={hostRef} className={`h-full w-full ${editing ? 'touch-none' : ''}`}><canvas ref={elementRef} aria-label="Interactive product design preview" /></div>;
+  return (
+    <div
+      ref={hostRef}
+      className={`h-full w-full ${editing ? "touch-none" : ""}`}
+    >
+      <canvas
+        ref={elementRef}
+        aria-label="Interactive product design preview"
+      />
+    </div>
+  );
 }

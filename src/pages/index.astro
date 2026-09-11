@@ -2,7 +2,7 @@
 import Footer from '../components/Footer.astro';
 import SiteHeader from '../components/Header.astro';
 import Layout from '../layouts/Layout.astro';
-import ProductCustomizer from '../components/ProductCustomizerV3.tsx';
+import ProductCustomizer from '../components/ProductCustomizer.astro';
 ---
 
 <Layout>
@@ -48,7 +48,7 @@ import ProductCustomizer from '../components/ProductCustomizerV3.tsx';
 				<p class="mb-[18px] text-[11px] font-bold tracking-[.23em] text-[#de9a5a]">THE FORM &amp; STORY APPROACH</p>
 				<h2 class="mb-6 max-w-[420px] font-display text-[clamp(34px,4vw,54px)] font-bold leading-[1.08] tracking-[-.04em]">We make getting dressed feel effortless.</h2>
 				<p class="mb-[27px] max-w-[430px] text-sm leading-[1.8] text-[#707673]">From the first sketch to the final stitch, every piece is designed around the way you actually live. Natural textures, precise shapes, and a softer idea of getting dressed.</p>
-				<ProductCustomizer client:load />
+				<ProductCustomizer />
 			</div>
 		</section>
 
