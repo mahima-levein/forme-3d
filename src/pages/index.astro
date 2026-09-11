@@ -1,11 +1,61 @@
 ---
-import Welcome from '../components/Welcome.astro';
+import Footer from '../components/Footer.astro';
+import SiteHeader from '../components/Header.astro';
 import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
 <Layout>
-	<Welcome />
+	<main>
+		<section class="relative flex min-h-[680px] items-center justify-center overflow-hidden bg-[#45494a] text-white min-[521px]:min-h-[min(770px,92vh)]" id="collection">
+			<img class="absolute inset-0 h-full w-full object-cover object-[56%_center] saturate-[.72] contrast-[1.04] min-[521px]:object-center" src="/main-image.png" alt="A group of people wearing Form and Story clothing" />
+			<div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(14,21,23,.62),rgba(14,21,23,.13)_66%,rgba(14,21,23,.5))]"></div>
+			<SiteHeader />
+			<div class="relative z-10 mt-[78px] w-[calc(100%-40px)] max-w-[690px] text-center">
+				<p class="mb-[18px] text-[11px] font-bold tracking-[.23em] text-[#de9a5a]">THE NEW SEASON / 2026</p>
+				<h1 class="font-display text-[clamp(46px,7vw,88px)] font-bold leading-[1.03] tracking-[-.04em]">Wear your point<br />of view.</h1>
+				<p class="mx-auto my-6 mb-8 max-w-[400px] text-[15px] leading-[1.7] text-white/80">Modern uniforms and considered layers, made for every version of your day.</p>
+				<a class="inline-flex items-center gap-5 border border-white/70 px-[18px] py-[13px] text-xs text-inherit no-underline transition-colors duration-200 hover:bg-white hover:text-[#1c211f]" href="#story">Explore the collection <span class="text-lg leading-none" aria-hidden="true">&#8594;</span></a>
+			</div>
+			<div class="absolute bottom-8 right-6 z-10 text-[11px] tracking-[.04em] min-[521px]:right-[6vw]">Designed for real life <span class="ml-2 text-[#de9a5a]">↗</span></div>
+		</section>
+
+		<section class="grid grid-cols-1 gap-[22px] bg-[#f7f6f2] px-6 py-[58px] min-[521px]:grid-cols-2 min-[521px]:gap-[4vw] min-[521px]:px-[6vw] min-[521px]:py-[78px] min-[801px]:grid-cols-[1.15fr_repeat(3,1fr)] min-[801px]:gap-[4vw]" aria-label="Form and Story benefits">
+			<h2 class="font-display text-[clamp(23px,2.5vw,32px)] font-bold leading-[1.15] tracking-[-.04em] min-[521px]:col-span-2 min-[801px]:col-span-1">Why choose<br />Form &amp; Story</h2>
+			<div>
+				<h3 class="mb-[13px] font-display text-[15px] font-semibold">Quiet confidence</h3>
+				<p class="mb-3 text-xs leading-[1.7] text-[#737875] min-[521px]:min-h-[54px]">Clothing with a clear point of view and an easy place in your wardrobe.</p>
+				<a class="inline-flex items-center gap-3.5 text-[11px] text-[#c97834] no-underline" href="#story">More info <span class="text-lg leading-none" aria-hidden="true">&#8594;</span></a>
+			</div>
+			<div>
+				<h3 class="mb-[13px] font-display text-[15px] font-semibold">Made to last</h3>
+				<p class="mb-3 text-xs leading-[1.7] text-[#737875] min-[521px]:min-h-[54px]">Thoughtful fabrics and lasting construction, chosen for everyday wear.</p>
+				<a class="inline-flex items-center gap-3.5 text-[11px] text-[#c97834] no-underline" href="#story">More info <span class="text-lg leading-none" aria-hidden="true">&#8594;</span></a>
+			</div>
+			<div>
+				<h3 class="mb-[13px] font-display text-[15px] font-semibold">Easy to wear</h3>
+				<p class="mb-3 text-xs leading-[1.7] text-[#737875] min-[521px]:min-h-[54px]">Versatile silhouettes that move naturally between work, travel, and home.</p>
+				<a class="inline-flex items-center gap-3.5 text-[11px] text-[#c97834] no-underline" href="#story">More info <span class="text-lg leading-none" aria-hidden="true">&#8594;</span></a>
+			</div>
+		</section>
+
+		<section class="grid min-h-[620px] grid-cols-1 items-center gap-[66px] bg-white px-6 py-[74px] min-[521px]:gap-[66px_30px] min-[521px]:px-[6vw] min-[521px]:py-[100px] min-[801px]:grid-cols-[minmax(0,1fr)_minmax(320px,.9fr)] min-[801px]:gap-[9vw]" id="story">
+			<div class="relative ml-7 w-[min(100%,550px)] min-[801px]:ml-[clamp(0px,3vw,50px)]">
+				<div class="absolute -left-7 -top-11 h-[88%] w-4/5 rounded-br-[20px] bg-[#f1f0ec] min-[801px]:-left-12"></div>
+				<img class="relative block aspect-[1/1.12] w-full rounded-br-[22px] object-cover" src="/sample.png" alt="Close-up of a natural linen apron and white shirt" />
+			</div>
+			<div class="max-w-[460px]">
+				<p class="mb-[18px] text-[11px] font-bold tracking-[.23em] text-[#de9a5a]">THE FORM &amp; STORY APPROACH</p>
+				<h2 class="mb-6 max-w-[420px] font-display text-[clamp(34px,4vw,54px)] font-bold leading-[1.08] tracking-[-.04em]">We make getting dressed feel effortless.</h2>
+				<p class="mb-[27px] max-w-[430px] text-sm leading-[1.8] text-[#707673]">From the first sketch to the final stitch, every piece is designed around the way you actually live. Natural textures, precise shapes, and a softer idea of getting dressed.</p>
+				<a class="inline-flex items-center gap-3.5 text-[11px] text-[#c97834] no-underline" href="#collection">Discover our materials <span class="text-lg leading-none" aria-hidden="true">&#8594;</span></a>
+			</div>
+		</section>
+
+		<section class="flex flex-col items-start gap-[30px] bg-[#e4ded4] px-6 py-[72px] min-[521px]:flex-row min-[521px]:items-end min-[521px]:px-[6vw] min-[521px]:py-[100px]" id="journal">
+			<p class="self-start text-[11px] font-bold tracking-[.23em] text-[#de9a5a]">FROM THE JOURNAL</p>
+			<h2 class="mr-auto font-display text-[clamp(42px,6vw,78px)] font-bold leading-[.96] tracking-[-.04em]">Less noise.<br />More you.</h2>
+			<a class="inline-flex items-center gap-3.5 text-[11px] text-[#c97834] no-underline" href="#contact">Read our latest notes <span class="text-lg leading-none" aria-hidden="true">&#8594;</span></a>
+		</section>
+	</main>
+	<Footer />
 </Layout>
