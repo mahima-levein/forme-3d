@@ -1,12 +1,15 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
+import node from '@astrojs/node';
 import { execFile } from 'node:child_process';
 
 import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
+	output: 'server',
+	adapter: node({ mode: 'standalone' }),
 	vite: {
 		plugins: [tailwindcss(), {
 			name: 'customizer-catalog-watcher',

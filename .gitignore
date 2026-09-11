@@ -22,3 +22,7 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# runtime quote data and generated quote images
+data/orders/
+public/assets/orders/
