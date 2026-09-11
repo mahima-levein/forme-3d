@@ -1,0 +1,15 @@
+{
+  "products": {
+    "shirts/SET1": {
+      "title": "Essential Tee",
+      "swatches": { "NEVY": "#17334F", "RED": "#A6332B", "WHITE": "#E9E7E1" },
+      "defaultColour": "NEVY",
+      "areas": {
+        "front": { "id": "front-chest", "label": "Front chest", "calibrated": true, "printRect": { "x": 0.34, "y": 0.29, "width": 0.32, "height": 0.30 }, "safeRect": { "x": 0.37, "y": 0.32, "width": 0.26, "height": 0.24 } },
+        "back": { "id": "back-centre", "label": "Back centre", "calibrated": true, "printRect": { "x": 0.34, "y": 0.29, "width": 0.32, "height": 0.30 }, "safeRect": { "x": 0.37, "y": 0.32, "width": 0.26, "height": 0.24 } },
+        "left": { "id": "left-sleeve", "label": "Wearer left sleeve", "calibrated": true, "printRect": { "x": 0.57, "y": 0.34, "width": 0.13, "height": 0.20 }, "safeRect": { "x": 0.59, "y": 0.37, "width": 0.09, "height": 0.14 } },
+        "right": { "id": "right-sleeve", "label": "Wearer right sleeve", "calibrated": true, "printRect": { "x": 0.30, "y": 0.34, "width": 0.13, "height": 0.20 }, "safeRect": { "x": 0.32, "y": 0.37, "width": 0.09, "height": 0.14 } }
+      }
+    }
+  }
+}

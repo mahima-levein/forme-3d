@@ -1,0 +1,225 @@
+{
+  "schemaVersion": 2,
+  "products": [
+    {
+      "id": "apron/SET1",
+      "category": "apron",
+      "setKey": "SET1",
+      "name": "Apron SET1",
+      "colours": [
+        {
+          "id": "BLACK",
+          "label": "Black",
+          "views": {
+            "front": {
+              "assetKey": "/src/assets/apron/SET1/BLACK/front.png",
+              "width": 1219,
+              "height": 746
+            }
+          }
+        },
+        {
+          "id": "CREAM",
+          "label": "Cream",
+          "views": {
+            "front": {
+              "assetKey": "/src/assets/apron/SET1/CREAM/front.png",
+              "width": 1219,
+              "height": 746
+            }
+          }
+        },
+        {
+          "id": "NAVY",
+          "label": "Navy",
+          "views": {
+            "front": {
+              "assetKey": "/src/assets/apron/SET1/NAVY/front.png",
+              "width": 1219,
+              "height": 746
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "apron/SET2",
+      "category": "apron",
+      "setKey": "SET2",
+      "name": "Apron SET2",
+      "colours": [
+        {
+          "id": "BLACK",
+          "label": "Black",
+          "views": {
+            "front": {
+              "assetKey": "/src/assets/apron/SET2/BLACK/front.png",
+              "width": 1219,
+              "height": 746
+            }
+          }
+        },
+        {
+          "id": "NEVY",
+          "label": "Navy",
+          "views": {
+            "front": {
+              "assetKey": "/src/assets/apron/SET2/NEVY/front.png",
+              "width": 1219,
+              "height": 746
+            }
+          }
+        },
+        {
+          "id": "RED",
+          "label": "Red",
+          "views": {
+            "front": {
+              "assetKey": "/src/assets/apron/SET2/RED/front.png",
+              "width": 1219,
+              "height": 746
+            }
+          }
+        },
+        {
+          "id": "ROPE",
+          "label": "Rope",
+          "views": {
+            "front": {
+              "assetKey": "/src/assets/apron/SET2/ROPE/front.png",
+              "width": 1219,
+              "height": 746
+            }
+          }
+        },
+        {
+          "id": "WHITE",
+          "label": "White",
+          "views": {
+            "front": {
+              "assetKey": "/src/assets/apron/SET2/WHITE/front.png",
+              "width": 1219,
+              "height": 746
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "apron/SET3",
+      "category": "apron",
+      "setKey": "SET3",
+      "name": "Apron SET3",
+      "colours": [
+        {
+          "id": "BLACK",
+          "label": "Black",
+          "views": {
+            "front": {
+              "assetKey": "/src/assets/apron/SET3/BLACK/front.png",
+              "width": 1219,
+              "height": 746
+            }
+          }
+        },
+        {
+          "id": "WHITE",
+          "label": "White",
+          "views": {
+            "front": {
+              "assetKey": "/src/assets/apron/SET3/WHITE/front.png",
+              "width": 1219,
+              "height": 746
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "shirts/SET1",
+      "category": "shirts",
+      "setKey": "SET1",
+      "name": "Shirt SET1",
+      "colours": [
+        {
+          "id": "NEVY",
+          "label": "Navy",
+          "views": {
+            "front": {
+              "assetKey": "/src/assets/shirts/SET1/NEVY/front.png",
+              "width": 1219,
+              "height": 746
+            },
+            "back": {
+              "assetKey": "/src/assets/shirts/SET1/NEVY/back.png",
+              "width": 1219,
+              "height": 746
+            },
+            "left": {
+              "assetKey": "/src/assets/shirts/SET1/NEVY/left.png",
+              "width": 1219,
+              "height": 746
+            },
+            "right": {
+              "assetKey": "/src/assets/shirts/SET1/NEVY/right.png",
+              "width": 1219,
+              "height": 746
+            }
+          }
+        },
+        {
+          "id": "RED",
+          "label": "Red",
+          "views": {
+            "front": {
+              "assetKey": "/src/assets/shirts/SET1/RED/front.png",
+              "width": 1219,
+              "height": 746
+            },
+            "back": {
+              "assetKey": "/src/assets/shirts/SET1/RED/back.png",
+              "width": 1219,
+              "height": 746
+            },
+            "left": {
+              "assetKey": "/src/assets/shirts/SET1/RED/left.png",
+              "width": 1219,
+              "height": 746
+            },
+            "right": {
+              "assetKey": "/src/assets/shirts/SET1/RED/right.png",
+              "width": 1219,
+              "height": 746
+            }
+          }
+        },
+        {
+          "id": "WHITE",
+          "label": "White",
+          "views": {
+            "front": {
+              "assetKey": "/src/assets/shirts/SET1/WHITE/front.png",
+              "width": 568,
+              "height": 850
+            },
+            "back": {
+              "assetKey": "/src/assets/shirts/SET1/WHITE/back.png",
+              "width": 568,
+              "height": 850
+            },
+            "left": {
+              "assetKey": "/src/assets/shirts/SET1/WHITE/left.png",
+              "width": 568,
+              "height": 850
+            },
+            "right": {
+              "assetKey": "/src/assets/shirts/SET1/WHITE/right.png",
+              "width": 568,
+              "height": 850
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
