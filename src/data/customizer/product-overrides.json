@@ -2,6 +2,7 @@
   "products": {
     "shirts/SET1": {
       "title": "Custom Men's Printed Crewneck T-Shirt",
+      "priceRange": "$18 - $24",
       "swatches": { "NEVY": "#17334F", "RED": "#C92F35", "WHITE": "#F5F5F3" },
       "defaultColour": "NEVY",
       "sizes": ["Small", "Medium", "Large", "XL", "2XL"],
@@ -14,6 +15,7 @@
     },
     "apron/SET1": {
       "title": "Classic Bib Apron",
+      "priceRange": "$22 - $30",
       "swatches": { "BLACK": "#171717", "CREAM": "#D9CDB8", "NAVY": "#1D3348" },
       "defaultColour": "BLACK",
       "sizes": ["One Size"],
@@ -21,6 +23,7 @@
     },
     "apron/SET2": {
       "title": "Workshop Apron",
+      "priceRange": "$26 - $34",
       "swatches": { "BLACK": "#171717", "NEVY": "#1D3348", "RED": "#A93132", "ROPE": "#8A7C65", "WHITE": "#F4F3EF" },
       "defaultColour": "BLACK",
       "sizes": ["One Size"],
@@ -28,6 +31,7 @@
     },
     "apron/SET3": {
       "title": "Studio Apron",
+      "priceRange": "$24 - $32",
       "swatches": { "BLACK": "#171717", "WHITE": "#F4F3EF" },
       "defaultColour": "BLACK",
       "sizes": ["One Size"],

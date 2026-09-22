@@ -1,22 +1,34 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { DecalGeometry } from "three/addons/geometries/DecalGeometry.js";
 import { LogoCanvasTexture } from "./logo-texture";
 import {
   PLACEMENTS,
-  type AvailablePlacement,
+  PLACEMENT_KEYS,
   type LogoSettings,
+  type PlacementConfig,
   type PlacementKey,
   type ProductView,
 } from "./types";
 
-const DEFAULT_SETTINGS: LogoSettings = { size: 0.55, x: 0, y: 0, rotation: 0 };
+const DEBUG_3D = false;
+const PLACEMENT_DEBUG = true;
+
+const MODEL_CONFIG = {
+  rotation: new THREE.Euler(0, 0, 0),
+  frontDirection: new THREE.Vector3(0, 0, 1),
+};
+
 const VIEW_DIRECTIONS: Record<ProductView, THREE.Vector3> = {
-  front: new THREE.Vector3(0, 0, 1),
-  back: new THREE.Vector3(0, 0, -1),
+  front: MODEL_CONFIG.frontDirection.clone(),
+  back: MODEL_CONFIG.frontDirection.clone().negate(),
   left: new THREE.Vector3(-1, 0, 0),
   right: new THREE.Vector3(1, 0, 0),
 };
+
+const DEFAULT_SETTINGS: LogoSettings = { size: 0.55, x: 0, y: 0, rotation: 0 };
+const DECAL_DEPTH_RATIO = 0.12;
 
 const requiredElement = <T extends Element>(root: ParentNode, selector: string): T => {
   const element = root.querySelector<T>(selector);
@@ -24,13 +36,19 @@ const requiredElement = <T extends Element>(root: ParentNode, selector: string):
   return element;
 };
 
-class CoverallCustomizer {
+const roundedTuple = (vector: THREE.Vector3): [number, number, number] =>
+  vector.toArray().map((value) => Number(value.toFixed(5))) as [number, number, number];
+
+class ShirtCustomizer {
   private readonly dialog: HTMLDialogElement;
   private readonly canvas: HTMLCanvasElement;
   private readonly viewer: HTMLElement;
   private readonly loading: HTMLElement;
   private readonly error: HTMLElement;
   private readonly placementSelect: HTMLSelectElement;
+  private readonly calibrationPanel: HTMLElement;
+  private readonly calibrationSelect: HTMLSelectElement;
+  private readonly calibrationStatus: HTMLElement;
   private readonly fileInput: HTMLInputElement;
   private readonly fileName: HTMLElement;
   private readonly scene = new THREE.Scene();
@@ -39,10 +57,17 @@ class CoverallCustomizer {
   private readonly controls: OrbitControls;
   private readonly logoTexture = new LogoCanvasTexture();
   private readonly settings: LogoSettings = { ...DEFAULT_SETTINGS };
-  private readonly printMaterials = new Map<PlacementKey, THREE.MeshBasicMaterial>();
-  private availablePlacements: AvailablePlacement[] = [];
-  private selectedPlacement: PlacementKey | null = null;
+  private readonly raycaster = new THREE.Raycaster();
+  private readonly pointer = new THREE.Vector2();
+  private readonly decalMaterial: THREE.MeshBasicMaterial;
+  private readonly garmentMeshes: THREE.Mesh[] = [];
+  private selectedPlacement: PlacementKey = PLACEMENT_KEYS[0];
+  private calibrationPlacement: PlacementKey = PLACEMENT_KEYS[0];
   private model: THREE.Group | null = null;
+  private decal: THREE.Mesh | null = null;
+  private debugMarker: THREE.Mesh | null = null;
+  private axesHelper: THREE.AxesHelper | null = null;
+  private modelSize = 1;
   private modelRadius = 1;
   private cameraDistance = 4;
   private targetCameraPosition: THREE.Vector3 | null = null;
@@ -50,6 +75,7 @@ class CoverallCustomizer {
   private initialized = false;
   private disposed = false;
   private previousBodyOverflow = "";
+  private pointerStart: { x: number; y: number } | null = null;
   private readonly resizeObserver: ResizeObserver;
   private readonly cleanups: Array<() => void> = [];
 
@@ -60,6 +86,9 @@ class CoverallCustomizer {
     this.loading = requiredElement(root, "[data-loading]");
     this.error = requiredElement(root, "[data-load-error]");
     this.placementSelect = requiredElement(root, "[data-placement]");
+    this.calibrationPanel = requiredElement(root, "[data-calibration-panel]");
+    this.calibrationSelect = requiredElement(root, "[data-calibration-placement]");
+    this.calibrationStatus = requiredElement(root, "[data-calibration-status]");
     this.fileInput = requiredElement(root, "[data-logo-input]");
     this.fileName = requiredElement(root, "[data-file-name]");
     this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, alpha: true });
@@ -70,8 +99,19 @@ class CoverallCustomizer {
     this.controls.enableDamping = true;
     this.controls.enablePan = false;
     this.controls.addEventListener("start", () => { this.targetCameraPosition = null; });
+    this.decalMaterial = new THREE.MeshBasicMaterial({
+      map: this.logoTexture.texture,
+      transparent: true,
+      alphaTest: 0.01,
+      depthTest: true,
+      depthWrite: false,
+      polygonOffset: true,
+      polygonOffsetFactor: -4,
+      toneMapped: false,
+    });
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.configureScene();
+    this.populatePlacementControls();
     this.bindEvents();
   }
 
@@ -86,6 +126,23 @@ class CoverallCustomizer {
     const rim = new THREE.DirectionalLight(0xfff1df, 1.2);
     rim.position.set(1, 4, -5);
     this.scene.add(rim);
+    if (DEBUG_3D) {
+      this.axesHelper = new THREE.AxesHelper(25);
+      this.scene.add(this.axesHelper);
+    }
+  }
+
+  private populatePlacementControls(): void {
+    this.placementSelect.replaceChildren();
+    this.calibrationSelect.replaceChildren();
+    for (const key of PLACEMENT_KEYS) {
+      const placement = PLACEMENTS[key];
+      this.placementSelect.add(new Option(placement.label, key));
+      this.calibrationSelect.add(new Option(`Calibrate ${placement.label}`, key));
+    }
+    this.placementSelect.value = this.selectedPlacement;
+    this.calibrationSelect.value = this.calibrationPlacement;
+    this.calibrationPanel.hidden = !PLACEMENT_DEBUG;
   }
 
   private bindEvents(): void {
@@ -97,7 +154,16 @@ class CoverallCustomizer {
     this.listen(this.dialog, "close", () => this.onClosed());
     this.listen(this.fileInput, "change", () => void this.loadLogo());
     this.listen(this.placementSelect, "change", () => this.selectPlacement(this.placementSelect.value as PlacementKey));
-
+    this.listen(this.calibrationSelect, "change", () => {
+      this.calibrationPlacement = this.calibrationSelect.value as PlacementKey;
+      this.calibrationStatus.textContent = `Click the real ${PLACEMENTS[this.calibrationPlacement].label.toLowerCase()} surface on the shirt.`;
+      this.moveToView(PLACEMENTS[this.calibrationPlacement].preferredView);
+    });
+    this.listen(this.canvas, "pointerdown", (event) => {
+      const pointerEvent = event as PointerEvent;
+      this.pointerStart = { x: pointerEvent.clientX, y: pointerEvent.clientY };
+    });
+    this.listen(this.canvas, "pointerup", (event) => this.handleCalibrationPointer(event as PointerEvent));
     for (const input of this.root.querySelectorAll<HTMLInputElement>("[data-logo-setting]")) {
       this.listen(input, "input", () => {
         const key = input.dataset.logoSetting as keyof LogoSettings;
@@ -139,61 +205,28 @@ class CoverallCustomizer {
     this.loading.hidden = false;
     this.error.hidden = true;
     try {
-      const gltf = await new GLTFLoader().loadAsync("/models/industrial_coverall.glb");
+      const gltf = await new GLTFLoader().loadAsync("/models/mens-shirt.glb");
       if (this.disposed) return;
       this.model = gltf.scene;
+      this.model.rotation.copy(MODEL_CONFIG.rotation);
+      this.model.updateMatrixWorld(true);
       this.model.traverse((child) => {
-        if (child instanceof THREE.Mesh) {
-          console.log("GLB mesh:", child.name);
-          child.castShadow = false;
-          child.receiveShadow = false;
-        }
+        if (!(child instanceof THREE.Mesh)) return;
+        child.castShadow = false;
+        child.receiveShadow = false;
+        this.garmentMeshes.push(child);
+        if (DEBUG_3D) console.log("GLB mesh:", child.name);
       });
       this.scene.add(this.model);
-      this.discoverPrintAreas();
       this.fitModel();
+      this.placementSelect.disabled = false;
       this.loading.hidden = true;
+      this.updateLogo();
     } catch (error) {
       console.error("Unable to load 3D preview.", error);
       this.loading.hidden = true;
       this.error.hidden = false;
     }
-  }
-
-  private discoverPrintAreas(): void {
-    if (!this.model) return;
-    this.availablePlacements = [];
-    this.placementSelect.replaceChildren();
-    for (const definition of PLACEMENTS) {
-      const object = this.model.getObjectByName(definition.meshName);
-      if (!(object instanceof THREE.Mesh)) {
-        console.warn(`Missing optional GLB print mesh: ${definition.meshName}`);
-        continue;
-      }
-      const mesh = object;
-      const material = new THREE.MeshBasicMaterial({
-        map: this.logoTexture.texture,
-        transparent: true,
-        alphaTest: 0.01,
-        depthWrite: true,
-        side: THREE.DoubleSide,
-        toneMapped: false,
-      });
-      mesh.material = material;
-      mesh.visible = false;
-      this.printMaterials.set(definition.key, material);
-      this.availablePlacements.push({ ...definition, mesh });
-      this.placementSelect.add(new Option(definition.label, definition.key));
-    }
-    this.placementSelect.disabled = this.availablePlacements.length === 0;
-    if (this.availablePlacements[0]) {
-      this.selectedPlacement = this.availablePlacements[0].key;
-      this.placementSelect.value = this.selectedPlacement;
-    } else {
-      this.placementSelect.add(new Option("No print areas available", ""));
-      this.selectedPlacement = null;
-    }
-    this.updateLogo();
   }
 
   private fitModel(): void {
@@ -202,7 +235,9 @@ class CoverallCustomizer {
     const centre = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3());
     this.model.position.sub(centre);
-    this.modelRadius = Math.max(size.x, size.y, size.z) / 2;
+    this.model.updateMatrixWorld(true);
+    this.modelSize = Math.max(size.x, size.y, size.z);
+    this.modelRadius = this.modelSize / 2;
     const verticalFov = THREE.MathUtils.degToRad(this.camera.fov);
     const distanceForHeight = size.y / (2 * Math.tan(verticalFov / 2));
     const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * Math.max(this.camera.aspect, 0.5));
@@ -217,6 +252,56 @@ class CoverallCustomizer {
     this.camera.position.copy(VIEW_DIRECTIONS.front).multiplyScalar(this.cameraDistance);
     this.camera.position.y = size.y * 0.02;
     this.controls.update();
+  }
+
+  private handleCalibrationPointer(event: PointerEvent): void {
+    if (!PLACEMENT_DEBUG || !this.pointerStart || !this.model) return;
+    const travel = Math.hypot(event.clientX - this.pointerStart.x, event.clientY - this.pointerStart.y);
+    this.pointerStart = null;
+    if (travel > 5) return;
+    const rect = this.canvas.getBoundingClientRect();
+    this.pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1);
+    this.raycaster.setFromCamera(this.pointer, this.camera);
+    const hit = this.raycaster.intersectObjects(this.garmentMeshes, false)[0];
+    if (!hit || !(hit.object instanceof THREE.Mesh) || !hit.face) {
+      this.calibrationStatus.textContent = "No garment surface was hit. Rotate the shirt and try again.";
+      return;
+    }
+    const mesh = hit.object;
+    const worldNormal = hit.face.normal.clone().applyNormalMatrix(new THREE.Matrix3().getNormalMatrix(mesh.matrixWorld)).normalize();
+    const localPosition = mesh.worldToLocal(hit.point.clone());
+    const localNormal = hit.face.normal.clone().normalize();
+    const placement = PLACEMENTS[this.calibrationPlacement];
+    placement.position = roundedTuple(localPosition);
+    placement.normal = roundedTuple(localNormal);
+    placement.meshName = mesh.name;
+    this.showDebugMarker(hit.point, worldNormal);
+    this.calibrationStatus.textContent = `${placement.label} calibrated on ${mesh.name || "unnamed mesh"}. Copy the configuration from the console.`;
+    this.logPlacement(this.calibrationPlacement, placement, hit.point, worldNormal);
+    if (this.selectedPlacement === this.calibrationPlacement) this.updateLogo();
+  }
+
+  private showDebugMarker(point: THREE.Vector3, normal: THREE.Vector3): void {
+    if (this.debugMarker) {
+      this.scene.remove(this.debugMarker);
+      this.debugMarker.geometry.dispose();
+      (this.debugMarker.material as THREE.Material).dispose();
+    }
+    const size = Math.max(this.modelSize * 0.012, 0.01);
+    this.debugMarker = new THREE.Mesh(new THREE.SphereGeometry(size, 12, 8), new THREE.MeshBasicMaterial({ color: 0xff3b30, depthTest: false }));
+    this.debugMarker.position.copy(point).addScaledVector(normal, size * 0.5);
+    this.debugMarker.renderOrder = 20;
+    this.scene.add(this.debugMarker);
+  }
+
+  private logPlacement(key: PlacementKey, placement: PlacementConfig, worldPosition: THREE.Vector3, worldNormal: THREE.Vector3): void {
+    const readyToCopy = { [key]: { ...placement } };
+    console.group(`Placement: ${placement.label}`);
+    console.log("Mesh:", placement.meshName || "unnamed mesh");
+    console.log("Position:", roundedTuple(worldPosition));
+    console.log("Normal:", roundedTuple(worldNormal));
+    console.log("Ready-to-copy local configuration:", JSON.stringify(readyToCopy, null, 2));
+    console.groupEnd();
   }
 
   private async loadLogo(): Promise<void> {
@@ -238,19 +323,58 @@ class CoverallCustomizer {
   }
 
   private selectPlacement(key: PlacementKey): void {
-    const placement = this.availablePlacements.find((entry) => entry.key === key);
-    if (!placement) return;
-    this.selectedPlacement = placement.key;
+    if (!PLACEMENTS[key]) return;
+    this.selectedPlacement = key;
     this.updateLogo();
-    this.moveToView(placement.preferredView);
+    this.moveToView(PLACEMENTS[key].preferredView);
   }
 
   private updateLogo(): void {
     this.logoTexture.redraw(this.settings);
-    for (const placement of this.availablePlacements) {
-      placement.mesh.visible = this.logoTexture.hasImage && placement.key === this.selectedPlacement;
-      this.printMaterials.get(placement.key)!.needsUpdate = true;
+    this.decalMaterial.needsUpdate = true;
+    this.rebuildDecal();
+  }
+
+  private rebuildDecal(): void {
+    this.removeDecal();
+    if (!this.model || !this.logoTexture.hasImage) return;
+    const placement = PLACEMENTS[this.selectedPlacement];
+    if (!placement.meshName) {
+      console.warn(`Placement "${placement.label}" is not calibrated yet.`);
+      return;
     }
+    const target = this.model.getObjectByName(placement.meshName);
+    if (!(target instanceof THREE.Mesh)) {
+      console.warn(`Placement "${placement.label}" references missing mesh "${placement.meshName}".`);
+      return;
+    }
+    target.updateWorldMatrix(true, false);
+    const position = target.localToWorld(new THREE.Vector3().fromArray(placement.position));
+    const normal = new THREE.Vector3().fromArray(placement.normal).applyNormalMatrix(new THREE.Matrix3().getNormalMatrix(target.matrixWorld)).normalize();
+    const orientation = this.projectorOrientation(normal, placement.rotation + this.settings.rotation);
+    const width = Math.max(this.modelSize * placement.scale, 0.001);
+    const size = new THREE.Vector3(width, width, Math.max(width * DECAL_DEPTH_RATIO, 0.001));
+    const geometry = new DecalGeometry(target, position, orientation, size);
+    this.decal = new THREE.Mesh(geometry, this.decalMaterial);
+    this.decal.renderOrder = 10;
+    this.scene.add(this.decal);
+  }
+
+  private projectorOrientation(normal: THREE.Vector3, rotationDegrees: number): THREE.Euler {
+    const z = normal.clone().normalize();
+    const referenceUp = Math.abs(z.dot(THREE.Object3D.DEFAULT_UP)) > 0.98 ? new THREE.Vector3(0, 0, 1) : THREE.Object3D.DEFAULT_UP.clone();
+    const x = referenceUp.clone().cross(z).normalize();
+    const y = z.clone().cross(x).normalize();
+    const surfaceQuaternion = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(x, y, z));
+    const twist = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), THREE.MathUtils.degToRad(rotationDegrees));
+    return new THREE.Euler().setFromQuaternion(surfaceQuaternion.multiply(twist), "XYZ");
+  }
+
+  private removeDecal(): void {
+    if (!this.decal) return;
+    this.scene.remove(this.decal);
+    this.decal.geometry.dispose();
+    this.decal = null;
   }
 
   private moveToView(view: ProductView): void {
@@ -273,9 +397,9 @@ class CoverallCustomizer {
     this.fileInput.value = "";
     this.fileName.textContent = "PNG, JPEG or WebP";
     this.logoTexture.clear();
-    this.selectedPlacement = this.availablePlacements[0]?.key ?? null;
-    if (this.selectedPlacement) this.placementSelect.value = this.selectedPlacement;
-    this.updateLogo();
+    this.selectedPlacement = PLACEMENT_KEYS[0];
+    this.placementSelect.value = this.selectedPlacement;
+    this.removeDecal();
     this.moveToView("front");
   }
 
@@ -324,8 +448,14 @@ class CoverallCustomizer {
     this.resizeObserver.disconnect();
     this.cleanups.forEach((cleanup) => cleanup());
     this.controls.dispose();
+    this.removeDecal();
+    this.decalMaterial.dispose();
     this.logoTexture.dispose();
-    this.printMaterials.forEach((material) => material.dispose());
+    if (this.debugMarker) {
+      this.debugMarker.geometry.dispose();
+      (this.debugMarker.material as THREE.Material).dispose();
+    }
+    this.axesHelper?.dispose();
     this.model?.traverse((child) => {
       if (!(child instanceof THREE.Mesh)) return;
       child.geometry.dispose();
@@ -337,7 +467,7 @@ class CoverallCustomizer {
   }
 }
 
-export const initializeCoverallCustomizer = (root: HTMLElement): (() => void) => {
-  const customizer = new CoverallCustomizer(root);
+export const initializeShirtCustomizer = (root: HTMLElement): (() => void) => {
+  const customizer = new ShirtCustomizer(root);
   return () => customizer.dispose();
 };

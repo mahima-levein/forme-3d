@@ -43,6 +43,13 @@ const title = (v: View) =>
     left: "Left Sleeve",
     right: "Right Sleeve",
   })[v];
+const viewLabel = (v: View) =>
+  ({
+    front: "Front side",
+    back: "Back side",
+    left: "Left sleeve",
+    right: "Right sleeve",
+  })[v];
 const makeDesign = (product: any): Design => {
   const colour = metadata[product.id]?.defaultColour ?? product.colours[0].id;
   return {
@@ -413,7 +420,7 @@ export default function ProductCustomizerV3() {
         onClick={open}
         className="inline-flex cursor-pointer items-center gap-3.5 text-[11px] border border-[#c97834] text-[#c97834] px-[18px] py-[13px] text-md no-underline transition-colors duration-200 hover:bg-white hover:text-[#1c211f]"
       >
-        Discover our materials <ArrowRight size={15} strokeWidth={1.8} aria-hidden="true" />
+        Open product customizer <ArrowRight size={15} strokeWidth={1.8} aria-hidden="true" />
       </button>
       <dialog
         ref={dialog}
@@ -477,9 +484,11 @@ export default function ProductCustomizerV3() {
                     <button
                       key={v}
                       onClick={() => setView(v)}
-                      aria-label={`${title(v)} view`}
-                      className={`h-3 w-3 rounded-full ${v === view ? "bg-black" : "bg-black/15"}`}
-                    />
+                      aria-label={`${viewLabel(v)} view`}
+                      className={`rounded-full border px-4 py-2 text-xs font-medium whitespace-nowrap transition ${v === view ? "border-[#686956] bg-[#686956] text-white" : "border-black/10 bg-white/90 text-[#383a27] hover:bg-white"}`}
+                    >
+                      {viewLabel(v)}
+                    </button>
                   ))}
                 </div>
               </>
@@ -493,9 +502,9 @@ export default function ProductCustomizerV3() {
             >
               <Download size={17} strokeWidth={1.8} aria-hidden="true" />
             </button>
-            <span className="absolute bottom-4 right-0 -translate-x-1/2 text-[10px] font-medium uppercase tracking-[0.18em] text-black/45">
+            {/* <span className="absolute bottom-4 left-16 -translate-x-1/2 text-[10px] font-medium uppercase tracking-[0.18em] text-black/45">
               Powered By LeveinGroup
-            </span>
+            </span> */}
             {busy && (
               <span className="absolute left-4 top-4 rounded bg-white px-3 py-2 text-sm shadow">
                 Updating preview…
@@ -877,6 +886,9 @@ export default function ProductCustomizerV3() {
                           <strong className="mt-1 block">
                             {metadata[p.id]?.title ?? p.name}
                           </strong>
+                          <span className="mt-2 block text-xs font-medium text-[#c97834]">
+                            {metadata[p.id]?.priceRange ?? "Price on request"}
+                          </span>
                         </button>
                       ))}
                     </div>

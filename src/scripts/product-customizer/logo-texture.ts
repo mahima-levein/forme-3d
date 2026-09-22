@@ -19,7 +19,10 @@ export class LogoCanvasTexture {
     this.context = context;
     this.texture = new THREE.CanvasTexture(this.canvas);
     this.texture.colorSpace = THREE.SRGBColorSpace;
-    this.texture.flipY = false;
+    // DecalGeometry generates conventional bottom-left UVs. Canvas pixel data
+    // starts at the top-left, so Three.js must flip it vertically during upload
+    // to keep the decal identical to the user's uploaded image.
+    this.texture.flipY = true;
     this.texture.wrapS = THREE.ClampToEdgeWrapping;
     this.texture.wrapT = THREE.ClampToEdgeWrapping;
     this.texture.generateMipmaps = true;
@@ -89,4 +92,3 @@ export class LogoCanvasTexture {
     this.objectUrl = null;
   }
 }
-
