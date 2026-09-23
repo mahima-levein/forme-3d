@@ -11,6 +11,14 @@ import {
   type PlacementKey,
   type ProductView,
 } from "./types";
+import { GARMENT_COLOR_BY_KEY } from "./colors";
+import {
+  cloneGarmentMaterials,
+  setGarmentColor,
+  restoreOriginalGarmentMaterial,
+  DEFAULT_COLOR_MODE,
+  type GarmentMaterialRecord,
+} from "./garment-material";
 
 const DEBUG_3D = false;
 const PLACEMENT_DEBUG = true;
@@ -61,6 +69,9 @@ class ShirtCustomizer {
   private readonly pointer = new THREE.Vector2();
   private readonly decalMaterial: THREE.MeshBasicMaterial;
   private readonly garmentMeshes: THREE.Mesh[] = [];
+  private readonly customColorInput: HTMLInputElement | null;
+  private garmentMaterials: GarmentMaterialRecord[] = [];
+  private selectedColorKey: string | null = null;
   private selectedPlacement: PlacementKey = PLACEMENT_KEYS[0];
   private calibrationPlacement: PlacementKey = PLACEMENT_KEYS[0];
   private model: THREE.Group | null = null;
@@ -91,6 +102,7 @@ class ShirtCustomizer {
     this.calibrationStatus = requiredElement(root, "[data-calibration-status]");
     this.fileInput = requiredElement(root, "[data-logo-input]");
     this.fileName = requiredElement(root, "[data-file-name]");
+    this.customColorInput = root.querySelector<HTMLInputElement>("[data-garment-color-custom]");
     this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, alpha: true });
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -175,7 +187,41 @@ class ShirtCustomizer {
     for (const button of this.root.querySelectorAll<HTMLButtonElement>("[data-view]")) {
       this.listen(button, "click", () => this.moveToView(button.dataset.view as ProductView));
     }
+    this.bindGarmentColorSwatches();
     this.listen(requiredElement(this.root, "[data-reset]"), "click", () => this.reset());
+  }
+
+  private bindGarmentColorSwatches(): void {
+    for (const button of this.root.querySelectorAll<HTMLButtonElement>("[data-garment-color]")) {
+      this.listen(button, "click", () => this.selectGarmentColor(button.dataset.garmentColor!));
+    }
+    if (this.customColorInput) {
+      this.listen(this.customColorInput, "input", () =>
+        this.selectCustomGarmentColor(this.customColorInput!.value),
+      );
+    }
+  }
+
+  private selectGarmentColor(key: string): void {
+    const color = GARMENT_COLOR_BY_KEY[key];
+    if (!color) return;
+    this.selectedColorKey = key;
+    setGarmentColor(this.garmentMaterials, color.hex, DEFAULT_COLOR_MODE);
+    this.updateSwatchActiveStates();
+  }
+
+  private selectCustomGarmentColor(hex: string): void {
+    this.selectedColorKey = null;
+    setGarmentColor(this.garmentMaterials, hex, DEFAULT_COLOR_MODE);
+    this.updateSwatchActiveStates();
+  }
+
+  private updateSwatchActiveStates(): void {
+    for (const button of this.root.querySelectorAll<HTMLButtonElement>("[data-garment-color]")) {
+      const active = button.dataset.garmentColor === this.selectedColorKey;
+      button.dataset.active = String(active);
+      button.setAttribute("aria-pressed", String(active));
+    }
   }
 
   private listen(target: EventTarget, type: string, handler: EventListener): void {
@@ -218,6 +264,7 @@ class ShirtCustomizer {
         if (DEBUG_3D) console.log("GLB mesh:", child.name);
       });
       this.scene.add(this.model);
+      this.garmentMaterials = cloneGarmentMaterials(this.model);
       this.fitModel();
       this.placementSelect.disabled = false;
       this.loading.hidden = true;
@@ -400,6 +447,9 @@ class ShirtCustomizer {
     this.selectedPlacement = PLACEMENT_KEYS[0];
     this.placementSelect.value = this.selectedPlacement;
     this.removeDecal();
+    this.selectedColorKey = null;
+    restoreOriginalGarmentMaterial(this.garmentMaterials);
+    this.updateSwatchActiveStates();
     this.moveToView("front");
   }
 
