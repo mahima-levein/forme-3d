@@ -26,3 +26,4 @@ pnpm-debug.log*
 # runtime quote data and generated quote images
 data/orders/
 public/assets/orders/
+.vercel
