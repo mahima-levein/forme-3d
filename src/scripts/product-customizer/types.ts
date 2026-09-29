@@ -38,14 +38,14 @@ export const PLACEMENTS: Record<PlacementKey, PlacementConfig> = {
     label: "Left Chest",
     preferredView: "front",
     position: [
-      7.78945,
-      48.50131,
-      13.25801
+      8.00506,
+      13.30794,
+      -48.27851
     ],
     normal: [
-      0.07624,
-      0.31561,
-      0.94582
+      0.09508,
+      0.97306,
+      -0.21005
     ],
     scale: 0.18,
     rotation: 0,
@@ -55,14 +55,14 @@ export const PLACEMENTS: Record<PlacementKey, PlacementConfig> = {
     label: "Right Chest",
     preferredView: "front",
     position: [
-      -7.93951,
-      48.64093,
-      11.77084
+      -8.96305,
+      11.37465,
+      -48.34653
     ],
     normal: [
-      -0.28976,
-      0.14077,
-      0.94669
+      -0.39097,
+      0.91366,
+      -0.11122
     ],
     scale: 0.18,
     rotation: 0,
@@ -72,14 +72,14 @@ export const PLACEMENTS: Record<PlacementKey, PlacementConfig> = {
     label: "Back",
     preferredView: "back",
     position: [
-      1.89341,
-      52.54543,
-      -8.89183
+      2.00625,
+      -8.91172,
+      -52.31657
     ],
     normal: [
-      0.25518,
-      0.07171,
-      -0.96423
+      0.25089,
+      -0.93652,
+      -0.24492
     ],
     scale: 0.3,
     rotation: 0,
@@ -89,14 +89,14 @@ export const PLACEMENTS: Record<PlacementKey, PlacementConfig> = {
     label: "Left Sleeve",
     preferredView: "left",
     position: [
-      -24.7342,
-      49.40743,
-      -1.86493
+      -24.55068,
+      -2.06773,
+      -50.18243
     ],
     normal: [
-      -0.95853,
-      0.2382,
-      0.15645
+      -0.95945,
+      0.11308,
+      -0.25821
     ],
     scale: 0.18,
     rotation: 0,
@@ -106,14 +106,14 @@ export const PLACEMENTS: Record<PlacementKey, PlacementConfig> = {
     label: "Right Sleeve",
     preferredView: "right",
     position: [
-      25.96497,
-      49.31998,
-      2.33814
+      25.64731,
+      2.54216,
+      -50.34515
     ],
     normal: [
-      0.89057,
-      0.18434,
-      0.41582
+      0.92552,
+      0.29862,
+      -0.23291
     ],
     scale: 0.18,
     rotation: 0,
