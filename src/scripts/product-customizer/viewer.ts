@@ -251,7 +251,7 @@ class ShirtCustomizer {
     this.loading.hidden = false;
     this.error.hidden = true;
     try {
-      const gltf = await new GLTFLoader().loadAsync("/models/mens-shirt.glb");
+      const gltf = await new GLTFLoader().loadAsync("/models/mens-shirt-2.glb");
       if (this.disposed) return;
       this.model = gltf.scene;
       this.model.rotation.copy(MODEL_CONFIG.rotation);
